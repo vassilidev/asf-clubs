@@ -1,50 +1,55 @@
-import puppeteer from "puppeteer-extra";
 import * as dotenv from 'dotenv'
-import UserAgent from 'user-agents';
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import * as winston from 'winston';
+import fs from 'fs'
+import fffClient from "./fffClient.js";
 
 dotenv.config();
 
-puppeteer.use(
-    StealthPlugin(),
-);
+fs.readFile(process.env.POSTAL_CODE_DATASET_OUTPUT, 'utf-8', (err, data) => {
+    if (err) {
+        console.error('Error reading JSON file:', err.message);
+        return;
+    }
 
-const logConfiguration = {
-    'transports': [
-        new winston.transports.File({
-            filename: 'logs/run-' + new Date().toJSON().replaceAll(':', '-') + '.log',
-        }),
-    ],
-};
+    try {
+        parseRows(JSON.parse(data));
+    } catch (parseError) {
+        console.error('Error parsing JSON:', parseError.message);
+    }
+});
 
-function delay(time) {
-    return new Promise(function (resolve) {
-        setTimeout(resolve, time)
+async function parseRows(rows) {
+    rows.reduce((res, o) => (res[o.codeInsee] = o, res), {});
+
+    let allClubs = [];
+
+    for (const row of rows) {
+        let response = await getData(row);
+
+        if (response) {
+            allClubs.push(...response);
+        }
+    }
+
+    fs.writeFile('finalClubs.json', JSON.stringify(allClubs), 'utf8', (err) => {
+        if (err) {
+            console.error('An error occurred while writing the file:', err);
+
+            return;
+        }
+
+        console.log('File has been written successfully');
     });
 }
 
-let logger = winston.createLogger(logConfiguration);
+async function getData(row) {
+    console.log('search clubs for ' + row.coordinates)
 
-(async () => {
-    logger.info('Start browser');
-
-    const browser = await puppeteer.launch({headless: false, ignoreHTTPSErrors: true});
-    const page = await browser.newPage();
-
-    await page.setDefaultNavigationTimeout(0);
-
-    logger.info('Set User Agent');
-
-    await page.setUserAgent(new UserAgent().toString());
-
-    logger.info('Go to homepage url');
-
-    await page.goto(process.env.HOME_URL);
-
-    logger.info('Cleanup cookie');
-
-    await page.evaluate(() => {
-        document.querySelector('#didomi-notice-agree-button')?.click();
+    let clubs = await fffClient.post(process.env.FFF_FIND_CLUB_PATH, {
+        find_club: {
+            latitude: row.coordinates[1],
+            longitude: row.coordinates[0]
+        }
     });
-})();
+
+    return clubs.data;
+}

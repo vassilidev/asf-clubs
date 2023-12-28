@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv'
 import downloadFile from './functions/postalCode/downloadPostalCodeFile.js';
 import csvParser from "csv-parser";
 import fs from "fs";
-import axios from "axios";
+import fffClient from './fffClient';
 
 dotenv.config();
 
@@ -35,7 +35,7 @@ async function parseData() {
 
     const jsonContent = JSON.stringify(cityInfos, null, 2);
 
-    fs.writeFile('postalCode.json', jsonContent, 'utf8', (err) => {
+    fs.writeFile(process.env.POSTAL_CODE_DATASET_OUTPUT, jsonContent, 'utf8', (err) => {
         if (err) {
             console.error('An error occurred while writing the file:', err);
 
@@ -44,13 +44,6 @@ async function parseData() {
         console.log('File has been written successfully');
     });
 }
-
-let fffClient = axios.create({
-    baseURL: process.env.FFF_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
 
 async function getData(index, row) {
     let codeInseeCity = row['#Code_commune_INSEE'];
