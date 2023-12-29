@@ -1,9 +1,9 @@
 import fs from 'fs';
 
-fs.readFile('finalClubs.json', 'utf-8', function (err, data) {
+fs.readFile('finalClubs-v2.json', 'utf-8', function (err, data) {
     let rows = JSON.parse(data);
-
-    makeUnique(rows);
+    console.log(rows.length)
+    // makeUnique(rows);
 })
 
 function makeUnique(rows) {
@@ -15,7 +15,7 @@ function makeUnique(rows) {
         clubCodes[rows[i].cl_cod] = rows[i];
     }
 
-    fs.writeFile('finalClubsUnique.json', JSON.stringify(Object.values(clubCodes)), 'utf8', (err) => {
+    fs.writeFile('finalClubsUnique-' +  (new Date()).toISOString().replace(/[:.]/g, '-')  + '.json', JSON.stringify(Object.values(clubCodes)), 'utf8', (err) => {
         if (err) {
             console.error('An error occurred while writing the file:', err);
         } else {

@@ -43,20 +43,14 @@ if (cluster.isMaster) {
             if (completedWorkers === numWorkers) {
                 console.log('All workers have completed, write the final output file')
 
-                fs.writeFile('finalClubs.json', JSON.stringify(allClubs), 'utf8', (err) => {
+                fs.writeFile('finalClubs-v2.json', JSON.stringify(allClubs), 'utf8', (err) => {
                     if (err) {
                         console.error('An error occurred while writing the file:', err);
                     } else {
                         console.log('File has been written successfully');
                     }
-                    // Ensure master process exits after writing the final output file
-                    process.exit(0);
                 });
             }
-        });
-
-        cluster.on('exit', (worker, code, signal) => {
-            console.log(`Worker ${worker.process.pid} died`);
         });
     });
 } else {
@@ -65,7 +59,6 @@ if (cluster.isMaster) {
         parseRows(workerRows);
     } catch (parseError) {
         console.error('Error parsing JSON:', parseError.message);
-        process.exit(1);
     }
 
     async function parseRows(rows) {
@@ -83,7 +76,6 @@ if (cluster.isMaster) {
 
         // Send the result back to the master process
         process.send({ type: 'result', data: allClubs });
-        process.exit(0); // Exit the worker process after completing the task
     }
 
     async function getData(row) {
@@ -93,6 +85,7 @@ if (cluster.isMaster) {
             find_club: {
                 latitude: row.coordinates[1],
                 longitude: row.coordinates[0],
+                radius: 10,
             },
         });
 
