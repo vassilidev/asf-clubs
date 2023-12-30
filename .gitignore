@@ -5,3 +5,5 @@ node_modules
 finalClubs-*.json
 logs/
 logs/*.log
+postalCode.csv
+postalCodeFull.json

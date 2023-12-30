@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv'
 import downloadFile from './functions/postalCode/downloadPostalCodeFile.js';
 import csvParser from "csv-parser";
 import fs from "fs";
-import fffClient from './fffClient';
+import fffClient from './functions/axios/fffClient.js';
 
 dotenv.config();
 

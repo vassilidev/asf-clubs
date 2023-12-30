@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import fs from 'fs';
 import cluster from 'cluster';
-import fffClient from './fffClient.js';
+import fffClient from './functions/axios/fffClient.js';
 import * as os from "os";
 import cliProgress from 'cli-progress'
 
