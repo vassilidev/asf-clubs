@@ -135,7 +135,6 @@ import cluster from "cluster";
                     let addr = textDivs[0].querySelectorAll('div');
 
                     return {
-                        test: clubToExtract.text,
                         nom_du_club: document.getElementsByClassName('navbar-brand')[0].text,
                         url_site: extractValue('www.'),
                         numero_club: extractValue(['N° du club:', 'Vereinsnr.:', 'No società:']), // N° du club: 6137
