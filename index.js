@@ -181,12 +181,14 @@ import cluster from "cluster";
                     return contacts;
                 });
 
-                let newClub = {
-                    ...basicInfo,
-                    contacts: contacts,
-                };
+                for (const contact in contacts) {
+                    let newClub = {
+                        ...basicInfo,
+                        ...contacts[i],
+                    };
 
-                output.push(newClub);
+                    output.push(newClub);
+                }
 
                 process.send({type: 'increment'});
             }
